@@ -10,6 +10,42 @@ from sklearn.ensemble import IsolationForest
 import pandas as pd
 import numpy as np
 ##------------------------------------------------------------------
+def drop_features(df):
+    '''
+    This function drop the features with more than 40% of missing values
+    from the data frame
+    Input
+    df: data frame
+    Returns
+    df: new data frame with the remained columns
+    '''
+    # Columns to drop
+    columns_out=df.columns[(df.isna().sum()/len(df)>0.4).values]
+    # Drop the columns with more than 40% of missing data
+    df.drop(columns=columns_out,inplace=True)
+    
+    return df
+##------------------------------------------------------------------
+def types_features(df):
+    '''
+    This function transform the data types of the features in df
+    Input: df - data frame
+
+    Returns
+    -------
+    data frame with the correct variable types.
+    '''
+    # Transform to datetime
+    date_time_var=['cvtd_timestamp','raw_timestamp_part_1',
+               'raw_timestamp_part_2']
+    df.loc[:,date_time_var]=df.loc[:,date_time_var].apply(pd.to_datetime)
+    # Transform to category
+    categories=['user_name','new_window']
+    df.loc[:,categories]=df.loc[:,categories].astype('category')
+    
+    return df
+    
+##------------------------------------------------------------------
 def iqr_rule(X):
     '''
     Given a serie X, the function the a Serie with the
