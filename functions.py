@@ -31,7 +31,7 @@ def types_features(df):
     
     return df
 ##------------------------------------------------------------------
-def create_semi_tidy_data(df):
+def create_semi_tidy_data(df,target):
     '''
     Include only one categorical variable with the location 
     of the sensors (belt, arm, forearm, dumbbell) and conserve 
@@ -40,10 +40,11 @@ def create_semi_tidy_data(df):
     Parameters
     ----------
     df : data frame
+    target: Serie. Target variable
 
     Returns
     -------
-    None.
+    (df,target) --> tuple with the data frame and the target variable.
 
     '''
     # Create an index variable to identify uniquely each instance
@@ -77,12 +78,15 @@ def create_semi_tidy_data(df):
     num_df_melt.reset_index(inplace=True) # Reset the index
     # Now it's time to merge the dataframes using "index"
     tidy_df=cat_df.merge(num_df_melt,how='left',on='index')
-    # Drop the variable "index"
-    tidy_df.drop(columns='index',inplace=True)
+    # Set index
+    tidy_df.set_index('index',inplace=True)
     # Convert to category the variable "Location"
     tidy_df['Location']=tidy_df['Location'].astype('category')
     
-    return tidy_df
+    # Reshape the target variable
+    target = [target[idx] for idx in tidy_df.index]
+    
+    return (tidy_df,target)
 ##------------------------------------------------------------------
 def preprocess_data(df,columns_out,dictionary,imputer_object):
     '''
