@@ -9,6 +9,7 @@ from interval import interval
 from sklearn.ensemble import IsolationForest
 import pandas as pd
 import numpy as np
+import re
 ##------------------------------------------------------------------
 
 def types_features(df):
@@ -29,6 +30,59 @@ def types_features(df):
     df.loc[:,categories]=df.loc[:,categories].astype('category')
     
     return df
+##------------------------------------------------------------------
+def create_semi_tidy_data(df):
+    '''
+    Include only one categorical variable with the location 
+    of the sensors (belt, arm, forearm, dumbbell) and conserve 
+    all the other categories together.
+
+    Parameters
+    ----------
+    df : data frame
+
+    Returns
+    -------
+    None.
+
+    '''
+    # Create an index variable to identify uniquely each instance
+    df.reset_index(inplace=True)
+    # Create a data frame with the categorical variables -------------------
+    # Categorical varibles
+    cat_var=[string for string in list(df.columns) if 
+     re.search(r'^(?!.*(belt|arm|forearm|dumbbell)).', string)]
+    # New data frame
+    cat_df=df[cat_var]
+    #-----------------------------------------------------------------------
+    # Create a data frame with the numerical variables and index
+    num_var=[string for string in list(df.columns) if 
+     re.search(r'belt|forearm|arm|dumbbell|index', string)]
+    num_df=df[num_var]
+    # Melt the information in num_df
+    num_df_melt=pd.melt(num_df,id_vars='index')
+    # Split the variables in "variable" and include it in the "num_df_melt" 
+    # dataframe
+    # This is going to create a new categorical variable called 
+    # "Location" (belt, arm, forearm, dumbbell).
+    # Also, this code erase the these 4 locations from "variable"
+    location_device=pd.Series(num_df_melt['variable']).str.extract(r'(?P<First>\w*)_(?P<Location>forearm|belt|dumbbell|arm)(?P<Second>\w*)')
+    num_df_melt['Location']=location_device['Location']
+    num_df_melt['variable']=location_device['First'] + location_device['Second']
+    # Unmelt to create new variables using the column "variable"
+    num_df_melt=num_df_melt.pivot_table(values='value', 
+                                        index=['index','Location'],
+                                        columns='variable',
+                                        aggfunc=lambda x: x)
+    num_df_melt.reset_index(inplace=True) # Reset the index
+    # Now it's time to merge the dataframes using "index"
+    tidy_df=cat_df.merge(num_df_melt,how='left',on='index')
+    # Drop the variable "index"
+    tidy_df.drop(columns='index',inplace=True)
+    # Convert to category the variable "Location"
+    tidy_df['Location']=tidy_df['Location'].astype('category')
+    
+    return tidy_df
 ##------------------------------------------------------------------
 def preprocess_data(df,columns_out,dictionary,imputer_object):
     '''
@@ -52,6 +106,10 @@ def preprocess_data(df,columns_out,dictionary,imputer_object):
     df.drop(columns=columns_out,inplace=True)
     # Impute NaN with the median
     df[dictionary['float']]=imputer_object.transform(df[dictionary['float']])
+    # Include only one categorical variable with the location of the sensor
+    df = create_semi_tidy_data(df)
+    
+    return df
     
 ##------------------------------------------------------------------
 def iqr_rule(X):
