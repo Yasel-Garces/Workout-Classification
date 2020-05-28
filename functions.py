@@ -10,25 +10,10 @@ from sklearn.ensemble import IsolationForest
 import pandas as pd
 import numpy as np
 ##------------------------------------------------------------------
-def drop_features(df):
-    '''
-    This function drop the features with more than 40% of missing values
-    from the data frame
-    Input
-    df: data frame
-    Returns
-    df: new data frame with the remained columns
-    '''
-    # Columns to drop
-    columns_out=df.columns[(df.isna().sum()/len(df)>0.4).values]
-    # Drop the columns with more than 40% of missing data
-    df.drop(columns=columns_out,inplace=True)
-    
-    return df
-##------------------------------------------------------------------
+
 def types_features(df):
     '''
-    This function transform the data types of the features in df
+    This function transform the data types
     Input: df - data frame
 
     Returns
@@ -44,6 +29,29 @@ def types_features(df):
     df.loc[:,categories]=df.loc[:,categories].astype('category')
     
     return df
+##------------------------------------------------------------------
+def preprocess_data(df,columns_out,dictionary,imputer_object):
+    '''
+    Pre-process the dataset
+
+    Parameters
+    ----------
+    df : dataframe
+    columns_out: List, columns to drop
+    imputer_object: object of class SimpleImputer. Impute NaN with the median.
+    dictionary: Dictionary with the types of each variable in df
+
+    Returns
+    -------
+    None.
+
+    '''
+    # Transform the data types
+    df = types_features(df)
+    # Drop the columns with more than 40% of missing data
+    df.drop(columns=columns_out,inplace=True)
+    # Impute NaN with the median
+    df[dictionary['float']]=imputer_object.transform(df[dictionary['float']])
     
 ##------------------------------------------------------------------
 def iqr_rule(X):
