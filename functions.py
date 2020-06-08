@@ -126,7 +126,7 @@ def iqr_rule(X):
     # Interquantile range
     IQR=quantiles[0.75]-quantiles[0.25]
     # Create the inlier interval
-    inliers_int=interval([quantiles[0.25]-1.5*IQR,quantiles[0.75]+1.5*IQR])
+    inliers_int=interval([quantiles[0.25]-1.5*IQR, quantiles[0.75]+1.5*IQR])
     # label as True the inliers observations and as False the outliers
     result=[x in inliers_int for x in X]
     return result
