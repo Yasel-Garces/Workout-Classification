@@ -88,7 +88,33 @@ def create_semi_tidy_data(df,target):
     
     return (tidy_df,target)
 ##------------------------------------------------------------------
-def preprocess_data(df,columns_out,dictionary,imputer_object):
+def standardizer_data(df,variables,scaler):
+    '''
+    This function standardize the features "variables" in df 
+    Input:
+        df: Data frame
+        variables: dictionary with the variables types
+        scaler: object of class StandardScaler
+
+    Returns 
+    -------
+    Standarized data frame
+    '''
+    # Select inly the numerical variables in "variables"
+    numerical_var=df[variables['float']]
+    # Transform the data and storage in a data frame
+    standard_data=pd.DataFrame(scaler.transform(numerical_var),
+                          columns=numerical_var.columns,
+                          index=numerical_var.index) 
+    # List the variables that were not standarised
+    extra_var=variables['category'].append(variables['int']).\
+        append(variables['datetime'])
+    # Include the desciptive columns
+    standard_data[extra_var]=df[extra_var]
+    
+    return standard_data
+##------------------------------------------------------------------
+def preprocess_data(df,columns_out,dictionary,imputer_object,scaler):
     '''
     Pre-process the dataset
 
@@ -98,6 +124,7 @@ def preprocess_data(df,columns_out,dictionary,imputer_object):
     columns_out: List, columns to drop
     imputer_object: object of class SimpleImputer. Impute NaN with the median.
     dictionary: Dictionary with the types of each variable in df
+    scaler: object of class StandardScaler
 
     Returns
     -------
@@ -112,6 +139,8 @@ def preprocess_data(df,columns_out,dictionary,imputer_object):
     df[dictionary['float']]=imputer_object.transform(df[dictionary['float']])
     # Include only one categorical variable with the location of the sensor
     df = create_semi_tidy_data(df)
+    # Standarize the data
+    df = (df,dictionary,scaler)
     
     return df
     
