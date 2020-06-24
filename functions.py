@@ -101,15 +101,15 @@ def standardizer_data(df,variables,scaler):
     Standarized data frame
     '''
     # Select inly the numerical variables in "variables"
-    numerical_var=df[variables['float']]
+    numerical_var=df[variables['float'].append(variables['int'])]
     # Transform the data and storage in a data frame
     standard_data=pd.DataFrame(scaler.transform(numerical_var),
                           columns=numerical_var.columns,
-                          index=numerical_var.index) 
+                          index=numerical_var.index) ###
     # List the variables that were not standarised
-    extra_var=variables['category'].append(variables['int']).\
-        append(variables['datetime'])
-    # Include the desciptive columns
+    extra_var=variables['category'].append(variables['datetime'])
+    
+    # Include the desciptive columns    
     standard_data[extra_var]=df[extra_var]
     
     return standard_data
@@ -140,7 +140,13 @@ def preprocess_data(df,columns_out,dictionary,imputer_object,scaler):
     # Include only one categorical variable with the location of the sensor
     df = create_semi_tidy_data(df)
     # Standarize the data
-    df = (df,dictionary,scaler)
+    df = standardizer_data(df,dictionary,scaler)
+    # Drop the variables "user_name", "raw_timestamp_part_1",\ 
+    # "raw_timestamp_part_2", "cvtd_timestamp"
+    df.drop(columns=['user_name', 'raw_timestamp_part_1', 
+                    'raw_timestamp_part_2', 'cvtd_timestamp'],inplace=True)
+    # Encode the "new_window" variable
+    df=pd.get_dummies(df,columns=['new_window'])
     
     return df
     
