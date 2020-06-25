@@ -137,17 +137,16 @@ def preprocess_data(df,columns_out,dictionary,imputer_object,scaler):
     df.drop(columns=columns_out,inplace=True)
     # Impute NaN with the median
     df[dictionary['float']]=imputer_object.transform(df[dictionary['float']])
-    # Include only one categorical variable with the location of the sensor
-    df = create_semi_tidy_data(df)
     # Standarize the data
     df = standardizer_data(df,dictionary,scaler)
+    # Encode the "new_window" variable
+    df=pd.get_dummies(df,columns=['new_window'])
     # Drop the variables "user_name", "raw_timestamp_part_1",\ 
     # "raw_timestamp_part_2", "cvtd_timestamp"
     df.drop(columns=['user_name', 'raw_timestamp_part_1', 
                     'raw_timestamp_part_2', 'cvtd_timestamp',
                     'new_window_no','new_window_yes'],inplace=True)
-    # Encode the "new_window" variable
-    df=pd.get_dummies(df,columns=['new_window'])
+    
     
     return df
     
