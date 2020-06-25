@@ -144,7 +144,8 @@ def preprocess_data(df,columns_out,dictionary,imputer_object,scaler):
     # Drop the variables "user_name", "raw_timestamp_part_1",\ 
     # "raw_timestamp_part_2", "cvtd_timestamp"
     df.drop(columns=['user_name', 'raw_timestamp_part_1', 
-                    'raw_timestamp_part_2', 'cvtd_timestamp'],inplace=True)
+                    'raw_timestamp_part_2', 'cvtd_timestamp',
+                    'new_window_no','new_window_yes'],inplace=True)
     # Encode the "new_window" variable
     df=pd.get_dummies(df,columns=['new_window'])
     
