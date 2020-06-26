@@ -10,7 +10,8 @@ Usually, people quantify the amount of exercise they do but don't the quality of
 In this directory you can find the next files:
 1. `Workout Classification.py`: This is a jupyter notebook with all the data analysis and ML models.
 2. `functions.py`: Its contains utilities functions used in the data analysis.
-3. Some images that help to illustrate and embellish the notebook.
+3. `WearableComputing_weight_lifting_exercises_biceps_curl_variations`: Dataset.
+4. Some images that help to illustrate and embellish the notebook.
 
 ## Packages
 Only basic Python packages were used (`pandas`, `numpy`, `sklearn`, `matplotlib`).
